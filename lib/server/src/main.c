@@ -24,7 +24,12 @@ void print_coord(struct vector_queue_head *head) {
     size_t indexer = 1;
 
     TAILQ_FOREACH(current, head, entries) {
-        printf("Coord / Angles P%zu :\n", indexer);
+        if (current->primary_point) {
+            printf("Coord / Angles P%zu :\n", indexer);
+            printf(GREEN);
+            indexer ++;
+        } else
+            printf(RED);
         printf("\tPoints: x = %.1lf, y = %.1lf, z = %.1lf\n",
                current->point->x,
                current->point->y,
@@ -33,7 +38,7 @@ void print_coord(struct vector_queue_head *head) {
                current->angle->x,
                current->angle->y,
                current->angle->z);
-        indexer++;
+        printf(RESET);
     }
 }
 

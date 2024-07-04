@@ -9,11 +9,12 @@
 #include <stdio.h>
 #include "map.h"
 
-void push_front(struct vector_queue_head *head, point3D_t *point, vector3D_t *angle)
+void push_front(struct vector_queue_head *head, point3D_t *point, vector3D_t *angle, bool primary)
 {
     vector_queue_t *new_point = malloc(sizeof(vector_queue_t));
     new_point->point = point;
     new_point->angle = angle;
+    new_point->primary_point = primary;
     TAILQ_INSERT_TAIL(head, new_point, entries);
 }
 
@@ -52,12 +53,12 @@ angle3D_t *create_angle(double a, double b, double c)
 static void default_map(map_t *map)
 {
     TAILQ_INIT(&map->vector_head);
-    push_front(&map->vector_head, create_point(13, 1, 3), create_angle(0, 90, 0));
-    push_front(&map->vector_head, create_point(24, 9, 3), create_angle(0, 90, 80));
-    push_front(&map->vector_head, create_point(24, 18, 3), create_angle(0, 90, 100));
-    push_front(&map->vector_head, create_point(16, 23, 3), create_angle(0, 90, 195));
-    push_front(&map->vector_head, create_point(6, 19, 3), create_angle(0, 90, 250));
-    push_front(&map->vector_head, create_point(4, 4, 3), create_angle(0, 90, 280));
+    push_front(&map->vector_head, create_point(13, 1, 3), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(24, 9, 3), create_angle(0, 90, 80), true);
+    push_front(&map->vector_head, create_point(24, 18, 3), create_angle(0, 90, 100), true);
+    push_front(&map->vector_head, create_point(16, 23, 3), create_angle(0, 90, 195), true);
+    push_front(&map->vector_head, create_point(6, 19, 3), create_angle(0, 90, 250), true);
+    push_front(&map->vector_head, create_point(4, 4, 3), create_angle(0, 90, 280), true);
 }
 
 static void parse_map_file(map_t *map, FILE *file)
@@ -85,7 +86,7 @@ static void parse_map_file(map_t *map, FILE *file)
             v2->x = a;
             v2->y = b;
             v2->z = c;
-            push_front(&map->vector_head, v1, v2);
+            push_front(&map->vector_head, v1, v2, true);
         }
     }
     fclose(file);
@@ -102,6 +103,8 @@ map_t *load_map(const char *filename)
         return map;
 
     parse_map_file(map, file);
+    float k = 0.1;
+    create_linear_trace(map, k);
     return map;
 }
 
