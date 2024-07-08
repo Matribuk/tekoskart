@@ -9,11 +9,11 @@
 #include <stdio.h>
 #include "map.h"
 
-void push_front(struct vector_queue_head *head, point3D_t *point, vector3D_t *angle, bool primary)
+void push_front(struct vector_queue_head *head, point3D_t *point, vector3D_t *tangent, bool primary)
 {
     vector_queue_t *new_point = malloc(sizeof(vector_queue_t));
     new_point->point = point;
-    new_point->angle = angle;
+    new_point->tangent = tangent;
     new_point->primary_point = primary;
     TAILQ_INSERT_TAIL(head, new_point, entries);
 }
@@ -26,8 +26,8 @@ void free_points(struct vector_queue_head *vector_head)
         TAILQ_REMOVE(vector_head, vectors, entries);
         if (vectors->point)
             free(vectors->point);
-        if (vectors->angle)
-            free(vectors->angle);
+        if (vectors->tangent)
+            free(vectors->tangent);
         free(vectors);
     }
 }
@@ -41,9 +41,9 @@ point3D_t *create_point(double x, double y, double z)
     return new;
 }
 
-angle3D_t *create_angle(double a, double b, double c)
+point3D_t *create_tangent(double a, double b, double c)
 {
-    angle3D_t *new = malloc(sizeof(point3D_t));
+    point3D_t *new = malloc(sizeof(point3D_t));
     new->x = a;
     new->y = b;
     new->z = c;
@@ -53,12 +53,12 @@ angle3D_t *create_angle(double a, double b, double c)
 static void default_map(map_t *map)
 {
     TAILQ_INIT(&map->vector_head);
-    push_front(&map->vector_head, create_point(13, 1, 3), create_angle(0, 90, 0), true);
-    push_front(&map->vector_head, create_point(24, 9, 3), create_angle(0, 90, 80), true);
-    push_front(&map->vector_head, create_point(24, 18, 3), create_angle(0, 90, 100), true);
-    push_front(&map->vector_head, create_point(16, 23, 3), create_angle(0, 90, 195), true);
-    push_front(&map->vector_head, create_point(6, 19, 3), create_angle(0, 90, 250), true);
-    push_front(&map->vector_head, create_point(4, 4, 3), create_angle(0, 90, 280), true);
+    push_front(&map->vector_head, create_point(13, 1, 3), create_tangent(0, 0, 0), true);
+    push_front(&map->vector_head, create_point(24, 9, 3), create_tangent(5, 8, 0), true);
+    push_front(&map->vector_head, create_point(24, 18, 3), create_tangent(-5, 5, 0), true);
+    push_front(&map->vector_head, create_point(16, 23, 3), create_tangent(-10, 5, 0), true);
+    push_front(&map->vector_head, create_point(6, 19, 3), create_tangent(-15, -10, 0), true);
+    push_front(&map->vector_head, create_point(4, 4, 3), create_tangent(10, -19, 0), true);
 }
 
 static void parse_map_file(map_t *map, FILE *file)
@@ -103,8 +103,8 @@ map_t *load_map(const char *filename)
         return map;
 
     parse_map_file(map, file);
-    float k = 0.1;
-    create_linear_trace(map, k);
+    float k = 1;
+    create_hermite_trace(map);
     return map;
 }
 

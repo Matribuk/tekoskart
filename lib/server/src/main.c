@@ -35,10 +35,25 @@ void print_coord(struct vector_queue_head *head) {
                current->point->y,
                current->point->z);
         printf("\tAngle: a = %.1lf, b = %.1lf, c = %.1lf\n",
-               current->angle->x,
-               current->angle->y,
-               current->angle->z);
+               current->tangent->x,
+               current->tangent->y,
+               current->tangent->z);
         printf(RESET);
+    }
+}
+
+void print_coord_formatted(struct vector_queue_head *head) {
+    vector_queue_t *current;
+
+    TAILQ_FOREACH(current, head, entries) {
+        printf("Points: x = %.1lf, y = %.1lf, z = %.1lf\n",
+               current->point->x,
+               current->point->y,
+               current->point->z);
+        printf("Angle: a = %.1lf, b = %.1lf, c = %.1lf\n",
+               current->tangent->x,
+               current->tangent->y,
+               current->tangent->z);
     }
 }
 
@@ -63,9 +78,10 @@ int main(int ac, char **av)
             free_config(config);
             return EXIT_FAILURE;
         }
-        print_coord(&map->vector_head);
+        //print_coord(&map->vector_head);
+        print_coord_formatted(&map->vector_head);
         engine = configure_engine(config);
-        print_config(engine->config);
+        //print_config(engine->config);
         run_engine(engine);
         exit_code = engine->exit_code;
         free_engine(engine);

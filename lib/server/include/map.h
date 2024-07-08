@@ -16,10 +16,11 @@ typedef struct vector3D {
 
 typedef vector3D_t angle3D_t;
 typedef vector3D_t point3D_t;
+typedef vector3D_t vec3;
 
 typedef struct vector_queue {
     point3D_t *point;
-    angle3D_t *angle;
+    point3D_t *tangent;
     bool primary_point;
     TAILQ_ENTRY(vector_queue) entries;
 } vector_queue_t;
@@ -30,6 +31,10 @@ typedef struct map {
     struct vector_queue_head vector_head;
 } map_t;
 
-void create_linear_trace(map_t *map, float k);
+float euclidean_distance(point3D_t p1, point3D_t p2);
+float angle_difference(angle3D_t a1, angle3D_t a2);
+int calculate_resolution(point3D_t p1, point3D_t p2, angle3D_t a1, angle3D_t a2, float k);
+void create_hermite_trace(map_t *map);
+void add_point_race(map_t *map);
 map_t *load_map(const char *filename);
 void free_map(map_t *map);
