@@ -21,6 +21,7 @@ typedef vector3D_t vec3;
 typedef struct vector_queue {
     point3D_t *point;
     point3D_t *tangent;
+    point3D_t *angles;
     bool primary_point;
     TAILQ_ENTRY(vector_queue) entries;
 } vector_queue_t;

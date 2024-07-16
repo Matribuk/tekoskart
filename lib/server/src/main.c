@@ -19,7 +19,8 @@ void print_config(args_t *config)
     printf("Mode: %d\n", config->mode);
 }
 
-void print_coord(struct vector_queue_head *head) {
+void print_coord(struct vector_queue_head *head)
+{
     vector_queue_t *current;
     size_t indexer = 1;
 
@@ -34,15 +35,20 @@ void print_coord(struct vector_queue_head *head) {
                current->point->x,
                current->point->y,
                current->point->z);
-        printf("\tAngle: a = %.1lf, b = %.1lf, c = %.1lf\n",
+        printf("\tTangent: a = %.1lf, b = %.1lf, c = %.1lf\n",
                current->tangent->x,
                current->tangent->y,
                current->tangent->z);
+        printf("\tAngle: a = %.5lf, b = %.5lf, c = %.5lf\n",
+               current->angles->x,
+               current->angles->y,
+               current->angles->z);
         printf(RESET);
     }
 }
 
-void print_coord_formatted(struct vector_queue_head *head) {
+void print_coord_formatted(struct vector_queue_head *head)
+{
     vector_queue_t *current;
 
     TAILQ_FOREACH(current, head, entries) {
@@ -50,10 +56,14 @@ void print_coord_formatted(struct vector_queue_head *head) {
                current->point->x,
                current->point->y,
                current->point->z);
-        printf("Angle: a = %.1lf, b = %.1lf, c = %.1lf\n",
+        printf("Tangent: a = %.5lf, b = %.5lf, c = %.5lf\n",
                current->tangent->x,
                current->tangent->y,
                current->tangent->z);
+        printf("Angle: a = %.5lf, b = %.5lf, c = %.5lf\n",
+               current->angles->x,
+               current->angles->y,
+               current->angles->z);
     }
 }
 
