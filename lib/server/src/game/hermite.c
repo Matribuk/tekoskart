@@ -4,6 +4,7 @@
 #include "map.h"
 
 #define DEG_TO_RAD(angle) ((angle) * M_PI / 180.0)
+#define RAD_TO_DEG(angle) ((angle) * 180.0 / M_PI)
 
 double h00(double t) { return 2*t*t*t - 3*t*t + 1; }
 double h10(double t) { return t*t*t - 2*t*t + t; }
@@ -18,76 +19,6 @@ double dh11(double t) { return 3*t*t - 2*t; }
 double vector_norm(vec3 v)
 {
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-
-static int is_almost_zero(double x)
-{
-    return fabs(x) < 1e-12;
-}
-
-static vec3 vector_difference(vec3 v1, vec3 v2)
-{
-    vec3 difference;
-    difference.x = v1.x - v2.x;
-    difference.y = v1.y - v2.y;
-    difference.z = v1.z - v2.z;
-    return difference;
-}
-
-static vec3 vector_add(vec3 v1, vec3 v2)
-{
-    vec3 result;
-    result.x = v1.x + v2.x;
-    result.y = v1.y + v2.y;
-    result.z = v1.z + v2.z;
-    return result;
-}
-
-static vec3 vector_divide(vec3 v1, double n)
-{
-    vec3 result;
-    result.x = v1.x / n;
-    result.y = v1.y / n;
-    result.z = v1.z / n;
-    return result;
-}
-
-static vec3 vector_mul(vec3 v1, double n)
-{
-    vec3 result;
-    result.x = v1.x * n;
-    result.y = v1.y * n;
-    result.z = v1.z * n;
-    return result;
-}
-
-float adjustAngle(float angle) {
-    return (angle + ((angle < 0 ? -1 : 1) * DEG_TO_RAD(-90)));
-}
-
-vec3 calculate_3d_angles(vec3 tangent)
-{
-    vec3 angles;
-    //double correctorx = -1 * DEG_TO_RAD(-90);
-    //double correctory = -1 * DEG_TO_RAD(-90);
-    //double correctorz = -1 * DEG_TO_RAD(-90);
-
-    //if (tangent.y < 0.0f && tangent.z < 0.0f)
-    //    correctorx *= -1;
-    //if (tangent.x < 0.0f && tangent.z < 0.0f)
-    //    correctory *= -1;
-    //if (tangent.y < 0.0f && tangent.x < 0.0f)
-    //    correctorz *= -1;
-
-
-    angles.x = atan2(tangent.y, tangent.z);
-    angles.y = atan2(tangent.x, tangent.z);
-    angles.z = atan2(tangent.y, tangent.x);
-
-
-    //angles = vector_difference(angles, );
-    return angles;
 }
 
 vec3 hermite_point(double t, vec3 P1, vec3 T1, vec3 P2, vec3 T2)
@@ -105,10 +36,6 @@ vec3 hermite_tangent(double t, vec3 P1, vec3 T1, vec3 P2, vec3 T2)
     tangent.x = dh00(t) * P1.x + dh10(t) * T1.x + dh01(t) * P2.x + dh11(t) * T2.x;
     tangent.y = dh00(t) * P1.y + dh10(t) * T1.y + dh01(t) * P2.y + dh11(t) * T2.y;
     tangent.z = dh00(t) * P1.z + dh10(t) * T1.z + dh01(t) * P2.z + dh11(t) * T2.z;
-
-    if (is_almost_zero(tangent.x)) tangent.x = 0.0;
-    if (is_almost_zero(tangent.y)) tangent.y = 0.0;
-    if (is_almost_zero(tangent.z)) tangent.z = 0.0;
     return tangent;
 }
 
@@ -125,16 +52,34 @@ void insert_point_in_queue(struct vector_queue_head *head, point3D_t *point, ang
     TAILQ_INSERT_TAIL(head, new_node, entries);
 }
 
-void hermiteCurve(vec3 P1, vec3 P2, vec3 T1, vec3 T2, struct vector_queue_head *head)
+double shortest_angle(double from, double to)
 {
-    int num_points = 100;
+    double delta = fmod(to - from, 360.0);
+    if (delta > 180.0)
+        delta -= 360.0;
+    else if (delta < -180.0)
+        delta += 360.0;
+    return from + delta;
+}
 
+vec3 interpolate_angles(double t, vec3 A1, vec3 A2)
+{
+    vec3 angles;
+    angles.x = (1 - t) * A1.x + t * shortest_angle(A1.x, A2.x);
+    angles.y = (1 - t) * A1.y + t * shortest_angle(A1.y, A2.y);
+    angles.z = (1 - t) * A1.z + t * shortest_angle(A1.z, A2.z);
+    return angles;
+}
+
+void hermiteCurve(vec3 P1, vec3 P2, vec3 T1, vec3 T2, vec3 A1, vec3 A2, struct vector_queue_head *head)
+{
+    int num_points = 150;
     for (int i = 0; i < num_points; ++i) {
         float t = (float)i / (num_points - 1);
         vec3 newPoint = hermite_point(t, P1, T1, P2, T2);
         vec3 newTangent = hermite_tangent(t, P1, T1, P2, T2);
-        vec3 newAngles = calculate_3d_angles(newTangent);
-        insert_point_in_queue(head, (point3D_t *)&newPoint, (angle3D_t *)&newTangent, (angle3D_t *)&newAngles, (t == 0.0f) ? true : false);
+        vec3 newAngles = interpolate_angles(t, A1, A2);
+        insert_point_in_queue(head, (point3D_t *)&newPoint, (angle3D_t *)&newTangent, (angle3D_t *)&newAngles, (t == 0.00000f));
     }
 }
 
@@ -157,7 +102,9 @@ void create_hermite_trace(map_t *map)
         vec3 T0 = *(vec3 *)current->tangent;
         vec3 P1 = *(vec3 *)next->point;
         vec3 T1 = *(vec3 *)next->tangent;
-        hermiteCurve(P0, P1, T0, T1, &hermite_head);
+        vec3 A0 = *(vec3 *)current->angles;
+        vec3 A1 = *(vec3 *)next->angles;
+        hermiteCurve(P0, P1, T0, T1, A0, A1, &hermite_head);
     }
 
     while ((current = TAILQ_FIRST(head)) != NULL) {

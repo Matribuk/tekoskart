@@ -21,7 +21,8 @@ race_t *init_race(engine_t *engine)
     return race;
 }
 
-static void free_dyn_obj(struct entities_queue_head *dyn_obj_head) {
+static void free_dyn_obj(struct entities_queue_head *dyn_obj_head)
+{
     entities_queue_t *obj;
     while (!TAILQ_EMPTY(dyn_obj_head)) {
         obj = TAILQ_FIRST(dyn_obj_head);
