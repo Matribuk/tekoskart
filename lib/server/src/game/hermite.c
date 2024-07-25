@@ -71,11 +71,10 @@ vec3 interpolate_angles(double t, vec3 A1, vec3 A2)
     return angles;
 }
 
-void hermiteCurve(vec3 P1, vec3 P2, vec3 T1, vec3 T2, vec3 A1, vec3 A2, struct vector_queue_head *head)
+void hermiteCurve(vec3 P1, vec3 P2, vec3 T1, vec3 T2, vec3 A1, vec3 A2, int resolution, struct vector_queue_head *head)
 {
-    int num_points = 150;
-    for (int i = 0; i < num_points; ++i) {
-        float t = (float)i / (num_points - 1);
+    for (int i = 0; i < resolution; ++i) {
+        float t = (float)i / (resolution - 1);
         vec3 newPoint = hermite_point(t, P1, T1, P2, T2);
         vec3 newTangent = hermite_tangent(t, P1, T1, P2, T2);
         vec3 newAngles = interpolate_angles(t, A1, A2);
@@ -83,7 +82,7 @@ void hermiteCurve(vec3 P1, vec3 P2, vec3 T1, vec3 T2, vec3 A1, vec3 A2, struct v
     }
 }
 
-void create_hermite_trace(map_t *map)
+void create_hermite_trace(map_t *map, int resolution)
 {
     struct vector_queue_head *head = &map->vector_head;
     if (head == NULL || TAILQ_EMPTY(head) || TAILQ_FIRST(head) == TAILQ_LAST(head, vector_queue_head))
@@ -104,7 +103,7 @@ void create_hermite_trace(map_t *map)
         vec3 T1 = *(vec3 *)next->tangent;
         vec3 A0 = *(vec3 *)current->angles;
         vec3 A1 = *(vec3 *)next->angles;
-        hermiteCurve(P0, P1, T0, T1, A0, A1, &hermite_head);
+        hermiteCurve(P0, P1, T0, T1, A0, A1, resolution, &hermite_head);
     }
 
     while ((current = TAILQ_FIRST(head)) != NULL) {

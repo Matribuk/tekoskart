@@ -83,7 +83,7 @@ int main(int ac, char **av)
     int exit_code = 0;
 
     if (config) {
-        map_t *map = load_map(config->map_name);
+        map_t *map = load_map(config->map_name, config->resolution);
         if (!map) {
             free_config(config);
             return EXIT_FAILURE;

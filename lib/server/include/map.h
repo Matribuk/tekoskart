@@ -35,7 +35,6 @@ typedef struct map {
 float euclidean_distance(point3D_t p1, point3D_t p2);
 float angle_difference(angle3D_t a1, angle3D_t a2);
 int calculate_resolution(point3D_t p1, point3D_t p2, angle3D_t a1, angle3D_t a2, float k);
-void create_hermite_trace(map_t *map);
-void add_point_race(map_t *map);
-map_t *load_map(const char *filename);
+void create_hermite_trace(map_t *map, int resolution);
+map_t *load_map(const char *filename, int resolution);
 void free_map(map_t *map);

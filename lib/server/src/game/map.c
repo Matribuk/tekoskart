@@ -63,12 +63,16 @@ point3D_t *create_angle(double a, double b, double c)
 static void default_map(map_t *map)
 {
     TAILQ_INIT(&map->vector_head);
-    push_front(&map->vector_head, create_point(13, 1, 3), create_tangent(0, 0, 0), create_angle(0, -90, 0), true);
-    push_front(&map->vector_head, create_point(24, 9, 3), create_tangent(5, 8, 0), create_angle(0, -90, 0), true);
-    push_front(&map->vector_head, create_point(24, 18, 3), create_tangent(-5, 5, 0), create_angle(0, -90, 0), true);
-    push_front(&map->vector_head, create_point(16, 23, 3), create_tangent(-10, 5, 0), create_angle(0, -90, 0), true);
+    push_front(&map->vector_head, create_point(13, 1, 15), create_tangent(0, 0, -10), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(18, 4, 10), create_tangent(10, 0, 0), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(24, 4, 15), create_tangent(0, 0, 10), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(18, 4, 20), create_tangent(-10, 0, 0), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(18, 7, 10), create_tangent(10, 0, 0), create_angle(0, 90, 0), true);
+    push_front(&map->vector_head, create_point(24, 9, 15), create_tangent(5, 8, 0), create_angle(0, 0, 0), true);
+    push_front(&map->vector_head, create_point(24, 18, 15), create_tangent(-5, 5, 0), create_angle(0, -90, 0), true);
+    push_front(&map->vector_head, create_point(16, 23, 15), create_tangent(-10, 5, 0), create_angle(0, -90, 0), true);
     push_front(&map->vector_head, create_point(6, 19, 3), create_tangent(-15, -10, 0), create_angle(0, -90, 0), true);
-    push_front(&map->vector_head, create_point(4, 4, 3), create_tangent(10, -19, 0), create_angle(0, -90, 0), true);
+    push_front(&map->vector_head, create_point(4, 4, 3), create_tangent(10, -19, 0), create_angle(0, -270, 0), true);
 }
 
 static void parse_map_file(map_t *map, FILE *file)
@@ -110,7 +114,7 @@ static void parse_map_file(map_t *map, FILE *file)
     fclose(file);
 }
 
-map_t *load_map(const char *filename)
+map_t *load_map(const char *filename, int resolution)
 {
     map_t *map = malloc(sizeof(map_t));
     if (!map)
@@ -122,7 +126,7 @@ map_t *load_map(const char *filename)
 
     parse_map_file(map, file);
     float k = 1;
-    create_hermite_trace(map);
+    create_hermite_trace(map, resolution);
     return map;
 }
 

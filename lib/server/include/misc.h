@@ -22,6 +22,7 @@ typedef struct args {
     size_t racers;
     char *map_name;
     gamemode mode;
+    int resolution;
 } args_t;
 
 args_t *load_config(const char *filename);

@@ -43,6 +43,8 @@ static void parse_config_file(args_t *config, FILE *file)
                 config->racers = (size_t)atoi(value);
             else if (strcmp(key, "mode") == 0)
                 config->mode = (gamemode)atoi(value);
+            else if (strcmp(key, "resolution") == 0)
+                config->resolution = (int)atoi(value);
         }
     }
     fclose(file);
